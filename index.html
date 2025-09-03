@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>细胞膜服务器白名单申请</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #000000; /* ★★★ 这是你喜欢的纯黑背景 ★★★ */
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .form-container {
+            background-color: rgba(44, 44, 44, 0.9);
+            color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border: 1px solid #444;
+        }
+        h1 {
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #f0f0f0;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            box-sizing: border-box;
+            background-color: #333;
+            color: #ffffff;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input[type="text"]:focus, input[type="email"]:focus {
+            outline: none;
+            border-color: #39ff14;
+            box-shadow: 0 0 8px rgba(57, 255, 20, 0.5);
+        }
+        .email-group {
+            display: flex;
+            align-items: center;
+        }
+        .email-group input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            background-color: #39ff14;
+            color: #000000;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        button:hover {
+            background-color: #4aff28;
+            box-shadow: 0 0 12px rgba(57, 255, 20, 0.7);
+        }
+        #send-code-btn {
+            width: auto;
+            padding: 10px 15px;
+            flex-shrink: 0;
+        }
+        .message {
+            margin-top: 5px;
+            font-size: 14px;
+            visibility: hidden;
+            min-height: 16px;
+        }
+        .error-message {
+            color: #ff4d4d;
+            visibility: visible;
+        }
+        .success-message {
+            color: #39ff14;
+            visibility: visible;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <form class="form-container" onsubmit="return false;">
+            <h1>服务器白名单申请</h1>
+            <div id="success-message-container" class="message"></div>
+
+            <div class="input-group">
+                <label for="ai-question">遇到问题是否可以先找AI解决，如果是，请给出AI名称或链接，如果不是，请填入“不是”</label>
+                <input type="text" id="ai-question" name="ai-question">
+                <div id="ai-question-error" class="message"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="qq-number">请输入用于绑定的QQ号</label>
+                <input type="text" id="qq-number" name="qq-number">
+            </div>
+
+            <div class="input-group">
+                <label for="email">请输入用于绑定的邮箱</label>
+                <div class="email-group">
+                    <input type="email" id="email" name="email">
+                    <button type="button" id="send-code-btn">发送验证码</button>
+                </div>
+                <div id="email-error" class="message"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="verification-code">请输入验证码</label>
+                <input type="text" id="verification-code" name="verification-code">
+                <div id="code-error" class="message"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="minecraft-username">请输入要绑定的Minecraft用户名</label>
+                <input type="text" id="minecraft-username" name="minecraft-username" pattern="^(?![0-9_]+$)(?![0-9]+$)(?![_]+$)[a-zA-Z0-9_]{3,16}$">
+                <div id="username-error" class="message"></div>
+            </div>
+
+            <button type="button" id="submit-btn">提交申请</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sendCodeBtn = document.getElementById('send-code-btn');
+            const submitBtn = document.getElementById('submit-btn');
+    
+            const successMsgContainer = document.getElementById('success-message-container');
+            const aiQuestionError = document.getElementById('ai-question-error');
+            const emailError = document.getElementById('email-error');
+            const codeError = document.getElementById('code-error');
+            const usernameError = document.getElementById('username-error');
+    
+            // ★★★ 这里是新的倒计时函数 ★★★
+            function startCountdown() {
+                let countdown = 300; // 5分钟倒计时
+                sendCodeBtn.disabled = true;
+    
+                const interval = setInterval(() => {
+                    countdown--;
+                    sendCodeBtn.textContent = `重新发送 (${countdown}s)`;
+                    if (countdown <= 0) {
+                        clearInterval(interval);
+                        sendCodeBtn.disabled = false;
+                        sendCodeBtn.textContent = '发送验证码';
+                    }
+                }, 1000);
+            }
+    
+            // ★★★ 这里是包含了倒计时逻辑的发送验证码功能 ★★★
+            sendCodeBtn.addEventListener('click', () => {
+                const emailInput = document.getElementById('email');
+                const email = emailInput.value;
+    
+                if (!email) {
+                    alert('请输入邮箱地址喵~');
+                    return;
+                }
+    
+                sendCodeBtn.disabled = true;
+                sendCodeBtn.textContent = '发送中...';
+    
+                fetch('https://api.cellmembranedemo.site/api/send-code', { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email }),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('网络响应不佳喵，请检查后端服务是否正常运行');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('后端返回:', data);
+                    if (data.status === 'success') {
+                        alert('验证码已发送喵~ 请检查你的邮箱！');
+                        startCountdown(); // 成功后启动倒计时
+                    } else {
+                        alert(data.message || '验证码发送失败了喵！');
+                        sendCodeBtn.disabled = false;
+                        sendCodeBtn.textContent = '发送验证码';
+                    }
+                })
+                .catch(error => {
+                    console.error('发送验证码失败:', error);
+                    alert('连接后端失败了喵，请确保后端程序正在运行！');
+                    sendCodeBtn.disabled = false;
+                    sendCodeBtn.textContent = '发送验证码';
+                });
+            });
+    
+            // --- 提交所有表单数据 (这部分保持原样) ---
+            submitBtn.addEventListener('click', () => {
+                clearAllMessages();
+    
+                const formData = {
+                    aiQuestion: document.getElementById('ai-question').value,
+                    qqNumber: document.getElementById('qq-number').value,
+                    email: document.getElementById('email').value,
+                    verificationCode: document.getElementById('verification-code').value,
+                    minecraftUsername: document.getElementById('minecraft-username').value,
+                };
+    
+                if (Object.values(formData).some(value => value.trim() === '')) {
+                    alert('所有输入框都必须填写喵！');
+                    return;
+                }
+                
+                fetch('https://api.cellmembranedemo.site/api/whitelist-apply', { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                })
+                .then(response => {
+                     if (!response.ok) {
+                        throw new Error('网络响应不佳喵');
+                    }
+                    return response.json()
+                })
+                .then(data => {
+                    handleBackendResponse(data);
+                })
+                .catch(error => {
+                    console.error('提交申请失败:', error);
+                    alert('服务器开小差了喵，请确保后端程序正在运行！');
+                });
+            });
+    
+            function handleBackendResponse(response) {
+                clearAllMessages(); 
+                if (!response) return;
+    
+                switch (response.status) {
+                    case 'success':
+                        successMsgContainer.textContent = '注册成功了喵~';
+                        successMsgContainer.className = 'message success-message';
+                        document.querySelector('.form-container').reset();
+                        break;
+                    case 'error':
+                        const errorType = response.error.type;
+                        const errorMessage = response.error.message;
+                        switch (errorType) {
+                            case 'ai_question_error':
+                                aiQuestionError.textContent = errorMessage;
+                                aiQuestionError.className = 'message error-message';
+                                break;
+                            case 'invalid_username':
+                                usernameError.textContent = errorMessage;
+                                usernameError.className = 'message error-message';
+                                break;
+                            case 'email_limit_exceeded':
+                                emailError.textContent = errorMessage;
+                                emailError.className = 'message error-message';
+                                break;
+                            case 'wrong_verification_code':
+                                codeError.textContent = errorMessage;
+                                codeError.className = 'message error-message';
+                                break;
+                            default:
+                                alert('发生了未知的错误喵：' + errorMessage);
+                        }
+                        break;
+                }
+            }
+            
+            function clearAllMessages() {
+                successMsgContainer.textContent = '';
+                successMsgContainer.className = 'message';
+                aiQuestionError.textContent = '';
+                aiQuestionError.className = 'message';
+                emailError.textContent = '';
+                emailError.className = 'message';
+                codeError.textContent = '';
+                codeError.className = 'message';
+                usernameError.textContent = '';
+                usernameError.className = 'message';
+            }
+        });
+    </script>
+</body>
+</html>
