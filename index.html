@@ -134,7 +134,6 @@
                 <input type="text" id="verification-code" name="verification-code">
                 <div id="code-error" class="message"></div>
             </div>
-
             <div class="input-group">
                 <label for="minecraft-username">请输入要绑定的Minecraft用户名</label>
                 <input type="text" id="minecraft-username" name="minecraft-username" pattern="^(?![0-9_]+$)(?![0-9]+$)(?![_]+$)[a-zA-Z0-9_]{3,16}$">
@@ -150,7 +149,8 @@
         const sendCodeUrl = 'https://api.cellmembranedemo.site/api/send-code';
         const applyUrl = 'https://api.cellmembranedemo.site/api/whitelist-apply';
         const successMsgContainer = document.getElementById('success-message-container');
-        function startCountdown() { /* ... 保持不变 ... */ }
+        function startCountdown() {
+        }
         sendCodeBtn.addEventListener('click', () => {
             const emailInput = document.getElementById('email');
             const email = emailInput.value;
@@ -165,20 +165,18 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email }),
             })
-            .then(response => { /* ... 后面的逻辑保持不变 ... */ })
-            // ...
+            .then(response => {
+            }) 
         });
-
         submitBtn.addEventListener('click', () => {
             fetch(applyUrl, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             })
-            .then(response => { /* ... 后面的逻辑保持不变 ... */ })
-            // ...
+            .then(response => {
+            })
         });
-        // ... (handleBackendResponse 和 clearAllMessages 函数保持不变) ...
     });
 </script>
 </body>
