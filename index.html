@@ -146,37 +146,103 @@
     document.addEventListener('DOMContentLoaded', () => {
         const sendCodeBtn = document.getElementById('send-code-btn');
         const submitBtn = document.getElementById('submit-btn');
-        const sendCodeUrl = 'https://api.cellmembranedemo.site/api/send-code';
-        const applyUrl = 'https://api.cellmembranedemo.site/api/whitelist-apply';
+
+        const sendCodeUrl = '/api/send-code';
+        const applyUrl = '/api/whitelist-apply';
+
         const successMsgContainer = document.getElementById('success-message-container');
+        const aiQuestionError = document.getElementById('ai-question-error');
+        const emailError = document.getElementById('email-error');
+        const codeError = document.getElementById('code-error');
+        const usernameError = document.getElementById('username-error');
+
         function startCountdown() {
+            let countdown = 300;
+            sendCodeBtn.disabled = true;
+            const interval = setInterval(() => {
+                countdown--;
+                sendCodeBtn.textContent = `重新发送 (${countdown}s)`;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    sendCodeBtn.disabled = false;
+                    sendCodeBtn.textContent = '发送验证码';
+                }
+            }, 1000);
         }
+
         sendCodeBtn.addEventListener('click', () => {
             const emailInput = document.getElementById('email');
             const email = emailInput.value;
+
             if (!email) {
                 alert('请输入邮箱地址喵~');
                 return;
             }
+
             sendCodeBtn.disabled = true;
             sendCodeBtn.textContent = '发送中...';
+
             fetch(sendCodeUrl, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email }),
             })
             .then(response => {
-            }) 
+                if (!response.ok) { throw new Error('网络响应不佳'); }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('验证码已发送喵~ 请检查你的邮箱！');
+                    startCountdown();
+                } else {
+                    alert(data.message || '验证码发送失败了喵！');
+                    sendCodeBtn.disabled = false;
+                    sendCodeBtn.textContent = '发送验证码';
+                }
+            })
+            .catch(error => {
+                console.error('发送验证码失败:', error);
+                alert('连接后端失败了喵，请确保后端服务正在运行！');
+                sendCodeBtn.disabled = false;
+                sendCodeBtn.textContent = '发送验证码';
+            });
         });
+
         submitBtn.addEventListener('click', () => {
+            clearAllMessages();
+            const formData = { /* ... 省略formData的获取 ... */ };
+            if (Object.values(formData).some(value => value.trim() === '')) {
+                alert('所有输入框都必须填写喵！');
+                return;
+            }
+            
             fetch(applyUrl, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             })
             .then(response => {
+                if (!response.ok) { throw new Error('网络响应不佳'); }
+                return response.json()
             })
+            .then(data => {
+                handleBackendResponse(data);
+            })
+            .catch(error => {
+                console.error('提交申请失败:', error);
+                alert('服务器开小差了喵，请确保后端程序正在运行！');
+            });
         });
+        function handleBackendResponse(response) {
+            clearAllMessages(); 
+            if (!response) return;
+            // ... (省略handleBackendResponse的内部逻辑)
+        }
+        
+        function clearAllMessages() {
+            // ... (省略clearAllMessages的内部逻辑)
+        }
     });
 </script>
 </body>
