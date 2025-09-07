@@ -1,0 +1,12 @@
+{
+	"name": "cellmembrane-backend",
+	"main": "src/index.ts",
+	"compatibility_date": "2024-05-08",
+	"d1_databases": [
+			{
+			  "binding": "DB",
+			  "database_name": "whitelist-db",
+			  "database_id": "b5ee7308-d4ba-43f3-b75f-f3797d8d486c"
+			}
+		  ]
+		}

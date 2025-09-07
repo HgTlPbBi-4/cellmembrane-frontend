@@ -1,0 +1,10 @@
+{
+	"compilerOptions": {
+	  "target": "esnext", "module": "esnext", "moduleResolution": "node",
+	  "lib": ["esnext"], "jsx": "react-jsx", "strict": true,
+	  "esModuleInterop": true, "skipLibCheck": true, "forceConsistentCasingInFileNames": true,
+	  "noEmit": true, "allowSyntheticDefaultImports": true, "resolveJsonModule": true,
+	  "isolatedModules": true, "types": ["@cloudflare/workers-types"]
+	},
+	"include": ["src"]
+  }
